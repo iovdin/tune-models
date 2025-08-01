@@ -1,0 +1,29 @@
+{
+  "name": "tune-models",
+  "version": "0.1.0",
+  "description": "LLM models for tune",
+  "main": "src/index.js",
+  "module": "src/index.mjs",
+  "scripts": {
+    "test": "node test/index.js",
+    "test:watch": "node --watch test/index.js"
+  },
+  "keywords": [
+    "ai",
+    "chat",
+    "llm"
+  ],
+  "author": "Ilya Ovdin <iovdin@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iovdin/tune-models"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "tune-sdk": "latest"
+  },
+  "devDependencies": {
+    "dotenv": "^17.2.1",
+    "tune-sdk": "^0.2.1"
+  }
+}
