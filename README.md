@@ -25,13 +25,14 @@ This middleware connects popular AI models like OpenAI, Anthropic, and others to
 ```
 
 Supports:
-It fetches the list of latest models from provider's api.
 - **OpenAI**: gpt-4, gpt-4.1-mini, gpt-3.5-turbo, etc.
 - **Anthropic**: claude-3-5-sonnet, claude-3-haiku, claude-3-opus, etc.  
 - **OpenRouter**: Access to hundreds of models from various providers
 - **Google Gemini**: gemini-pro, gemini-1.5-pro, gemini-flash, etc.
 - **Mistral**: mistral-large, mistral-medium, mistral-small, etc.
 - **Groq**: llama3-70b-8192, mixtral-8x7b-32768, gemma-7b-it, etc.
+
+It fetches the list of latest models from provider's api.
 
 ## Setup for Text Editor
 
@@ -48,10 +49,12 @@ Add to `~/.tune/default.ctx.js`:
 const models = require('tune-models')
 
 module.exports = [
+    ...
     models({
         default: "gpt-4.1",
         ...
     })
+    ...
 ]
 ```
 
@@ -100,10 +103,10 @@ models({
   // Only expose specific models
   expose: ["gpt-4.1-mini", "claude-3-sonnet"],
   
-  // Mount under prefix: @openai/gpt-4.1-mini
+  // Mount under prefix: @models/gpt-4.1-mini
   mount: "models",
   
-  // Cache model lists (default: true)
+  // Cache model lists on disk (default: true)
   cache: true,
   cache_ttl: 3600000, // 1 hour
   
@@ -119,7 +122,6 @@ models({
 ```javascript
 openai({ 
   default: "gpt-4.1-mini",
-  mount: "openai",
   apiKey: "sk-...",
   mount: "openai",
   expose: ["gpt-4.1-mini"]

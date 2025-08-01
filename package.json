@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "description": "LLM models for tune",
   "main": "src/index.js",
-  "module": "src/index.mjs",
   "scripts": {
     "test": "node test/index.js",
     "test:watch": "node --watch test/index.js"
