@@ -1,6 +1,6 @@
 # Tune Models
 
-LLM models middleware for [Tune](https://github.com/tune-sdk/tune-sdk) - chat with AI directly in your text editor.
+LLM models middleware for [Tune](https://github.com/iovdin/tune) - chat with AI directly in your text editor.
 
 This middleware connects popular AI models like OpenAI, Anthropic, and others to your Tune setup.
 
