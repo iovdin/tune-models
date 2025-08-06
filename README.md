@@ -76,7 +76,7 @@ npm install tune-models tune-sdk
 
 ```javascript
 const tune = require('tune-sdk')
-const { openai, anthropic } = require('tune-models')
+const { openai, anthropic, groq, mistral, geimini, openrouter } = require('tune-models')
 
 const ctx = tune.makeContext(
     { OPENAI_KEY: process.env.OPENAI_KEY }, 
@@ -108,7 +108,7 @@ models({
   
   // Cache model lists on disk (default: true)
   cache: true,
-  cache_ttl: 3600000, // 1 hour
+  cacheTtl: 3600000, // 1 hour
   
   // API keys for all providers
   apiKeys: {

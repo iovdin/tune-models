@@ -181,6 +181,7 @@ function createProviderContext(providerName, providerOptions) {
         if (args.output === 'all') {
           return matchedModels.map(model => ({ 
             type: "llm", 
+            source: providerName,
             name: mount ? `${mount}/${model.id || model.name}` : (model.id || model.name)
           }));
         }
@@ -188,6 +189,7 @@ function createProviderContext(providerName, providerOptions) {
         const model = matchedModels[0];
         return {
           type: "llm",
+          source: providerName,
           exec: async (payload) => {
             // Get a fresh key in case it's rotated
             const key = resolvedApiKey || await this.read(apiKeyEnv);

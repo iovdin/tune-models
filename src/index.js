@@ -20,11 +20,11 @@ function createModelsMiddleware(options = {}) {
   // Create configured providers
   const providers = [
     openai({ cache, cacheTtl, apiKey: apiKeys.openai }),
-    openrouter({ cache, cacheTtl, apiKey: apiKeys.openrouter  }),
+    groq({ cache, cacheTtl, apiKey: apiKeys.groq }),
     anthropic({ cache, cacheTtl, apiKey: apiKeys.anthropic }),
     gemini({ cache, cacheTtl, apiKey: apiKeys.gemini}),
     mistral({ cache, cacheTtl, apiKey: apiKeys.mistral }),
-    groq({ cache, cacheTtl, apiKey: apiKeys.groq })
+    openrouter({ cache, cacheTtl, apiKey: apiKeys.openrouter }),
   ];
 
   return async function models(name, args) {
