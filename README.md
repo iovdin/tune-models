@@ -31,6 +31,7 @@ Supports:
 - **Google Gemini**: gemini-pro, gemini-1.5-pro, gemini-flash, etc.
 - **Mistral**: mistral-large, mistral-medium, mistral-small, etc.
 - **Groq**: llama3-70b-8192, mixtral-8x7b-32768, gemma-7b-it, etc.
+- **Ollama** whatever models are pulled in your ollama server
 
 It fetches the list of latest models from provider's api.
 
@@ -66,6 +67,7 @@ OPENROUTER_KEY=sk-or-...
 GEMINI_KEY=AI...
 MISTRAL_KEY=...
 GROQ_KEY=gsk_...
+OLLAMA_URL="http://localhost:11434"
 ```
 
 ## Setup for JavaScript Project
@@ -76,7 +78,7 @@ npm install tune-models tune-sdk
 
 ```javascript
 const tune = require('tune-sdk')
-const { openai, anthropic, groq, mistral, geimini, openrouter } = require('tune-models')
+const { openai, anthropic, groq, mistral, geimini, openrouter, ollama } = require('tune-models')
 
 const ctx = tune.makeContext(
     { OPENAI_KEY: process.env.OPENAI_KEY }, 
@@ -113,7 +115,8 @@ models({
   // API keys for all providers
   apiKeys: {
     openai: process.env.OPENAI_KEY,
-    anthropic: process.env.ANTHROPIC_KEY
+    anthropic: process.env.ANTHROPIC_KEY,
+    ollama: process.env.OLLAMA_URL
   }
 })
 ```

@@ -4,6 +4,7 @@ const anthropic = require("./antrophic.js")
 const gemini = require("./gemini.js")
 const mistral = require("./mistral.js")
 const groq = require("./groq.js")
+const ollama = require("./ollama.js")
 
 const tune = require("tune-sdk")
 
@@ -19,6 +20,7 @@ function createModelsMiddleware(options = {}) {
 
   // Create configured providers
   const providers = [
+    ollama({ cache: false, apiKey: apiKeys.ollama }),
     openai({ cache, cacheTtl, apiKey: apiKeys.openai }),
     groq({ cache, cacheTtl, apiKey: apiKeys.groq }),
     anthropic({ cache, cacheTtl, apiKey: apiKeys.anthropic }),
@@ -54,4 +56,5 @@ module.exports.anthropic = anthropic;
 module.exports.gemini = gemini;
 module.exports.mistral = mistral;
 module.exports.groq = groq;
+module.exports.ollama = ollama;
 
