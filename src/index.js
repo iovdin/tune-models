@@ -1,6 +1,6 @@
 const openai = require("./openai.js")
 const openrouter = require("./openrouter.js")
-const anthropic = require("./antrophic.js")
+const anthropic = require("./anthropic.js")
 const gemini = require("./gemini.js")
 const mistral = require("./mistral.js")
 const groq = require("./groq.js")
