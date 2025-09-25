@@ -18,6 +18,10 @@ module.exports = createProviderContext("anthropic", {
   apiKeyEnv: "ANTHROPIC_KEY",
   apiModelFetcher: fetchAnthropicModels,
   createExecFunction: (model, payload, key) => {
+
+    if (payload.stream) {
+      payload.stream_options = { include_usage: true}
+    }
     return {
       url: "https://api.anthropic.com/v1/chat/completions",
       method: "POST",

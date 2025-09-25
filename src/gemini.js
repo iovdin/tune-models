@@ -31,6 +31,9 @@ module.exports = createProviderContext("gemini", {
         message.content = [];
       }
     });
+    if (payload.stream) {
+      payload.stream_options = { include_usage: true}
+    }
 
     return {
       url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",

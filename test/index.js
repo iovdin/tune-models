@@ -9,7 +9,12 @@ const { openai, anthropic } = require('../src/index');
 require('dotenv').config()
 
 const env = { 
-  OPENAI_KEY: process.env.OPENAI_KEY
+  OPENAI_KEY: process.env.OPENAI_KEY,
+  ANTHROPIC_KEY: process.env.ANTHROPIC_KEY,
+  GROQ_KEY: process.env.GROQ_KEY,
+  MISTRAL_KEY: process.env.MISTRAL_KEY,
+  GEMINI_KEY: process.env.GEMINI_KEY
+
 }
 
 const tests = {};
@@ -17,6 +22,9 @@ const tests = {};
 tests.api_keys = async function(){
   assert.ok(process.env.OPENAI_KEY, "OPENAI_KEY has to be set for testing") 
   assert.ok(process.env.ANTHROPIC_KEY, "ANTHROPIC_KEY has to be set for testing") 
+  assert.ok(process.env.GROQ_KEY, "GROQ_KEY has to be set for testing") 
+  assert.ok(process.env.MISTRAL_KEY, "MISTRAL_KEY has to be set for testing") 
+  assert.ok(process.env.GEMINI_KEY, "GEMINI_KEY has to be set for testing") 
 }
 
 tests.not_found = async function(){
@@ -179,9 +187,70 @@ tests.z_cache = async function () {
 
 }
 
+tests.usage = async function() {
+
+  let ctx = tune.makeContext(
+    env,
+    models({ cache: false })
+  )
+
+  let items = [
+    { 
+      model: "gpt-5-nano", 
+      provider: "openai"
+    }, 
+    { 
+      model: "gemini-2.5-flash",
+      provider: "gemini" 
+    },
+    { 
+      model: "claude-sonnet-4-20250514", 
+      provider: "anthropic"
+    },
+    { 
+      model: "qwen/qwen3-32b", 
+      provider: "groq"
+    },
+    { 
+      model: "mistral-small-latest",
+      provider: "mistral" 
+    },
+  ] 
+
+  const testUsage = (provider, model, stream) => {
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('Test timeout')), 15000);
+      const lctx = ctx.clone();
+      lctx.use(async function usage(p, m, u) {
+        assert.equal(provider, p, `provider does not match ${provider} !== ${p}`)
+        assert.equal(model, m, `provider does not match ${model} !== ${m}`)
+        assert.ok(u, 'usage is empty')
+        try {
+          clearTimeout(timeout);
+          assert.ok(u.prompt_tokens !== undefined, `prompt_tokens is not set for ${provider}/${model}`);
+          assert.ok(u.completion_tokens !== undefined, `completion_tokens is not set for ${provider}/${model}`);
+          assert.ok(u.total_tokens !== undefined, `total_tokens is not set for ${provider}/${model}`);
+          assert.ok(typeof u.prompt_tokens === 'number', `prompt_tokens should be number for ${provider}/${model}`);
+          assert.ok(typeof u.completion_tokens === 'number', `completion_tokens should be number for ${provider}/${model}`);
+          assert.ok(typeof u.total_tokens === 'number', `total_tokens should be number for ${provider}/${model}`);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+
+      lctx.text2run(`u: @${model} Hello, please respond with just 'Hi'`, { stream }).catch(reject);
+    });
+  };
+  for (const item of items) {
+    await testUsage(item.provider, item.model, false)
+    await testUsage(item.provider, item.model, true)
+  }
+}
+
 
 async function run(testList){
-  testList = testList || Object.keys(tests)
+  testList = (testList && testList.length) ? testList : Object.keys(tests)
   let curTest
   while(curTest = testList.shift()) {
     try {
@@ -194,4 +263,4 @@ async function run(testList){
   
 
 }
-run();
+run(process.argv.slice(2));

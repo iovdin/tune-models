@@ -16,6 +16,9 @@ module.exports = createProviderContext("openai", {
   apiKeyEnv: "OPENAI_KEY",
   apiModelFetcher: fetchOpenAIModels,
   createExecFunction: (model, payload, key) => {
+    if (payload.stream) {
+      payload.stream_options = { include_usage: true}
+    }
     return {
       url: "https://api.openai.com/v1/chat/completions",
       method: "POST",
