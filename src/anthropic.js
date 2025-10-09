@@ -8,9 +8,14 @@ async function fetchAnthropicModels(apiKey) {
     }
   });
 
-  if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
-
   const content = await res.json();
+  if (!res.ok) { 
+    if (content?.error?.message) {
+      throw new Error(content.error.message)
+    }
+    throw new Error(`${res.status} ${res.statusText}`);
+  }
+
   return content.data;
 }
 

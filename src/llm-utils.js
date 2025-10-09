@@ -24,14 +24,9 @@ function createModelCache(providerName, fetchModelsFunction, options = {}) {
     
     // If cache is disabled, fetch once and keep in memory
     if (!cache) {
-      try {
-        const models = await fetchModelsFunction(...args);
-        memoryCache = models;
-        return models;
-      } catch (error) {
-        console.error(`Error fetching models for ${providerName}:`, error);
-        throw error;
-      }
+      const models = await fetchModelsFunction(...args);
+      memoryCache = models;
+      return models;
     }
     
     // Disk cache mode
@@ -53,19 +48,14 @@ function createModelCache(providerName, fetchModelsFunction, options = {}) {
     }
 
     // Fetch from API if cache doesn't exist, is too old, or couldn't be read
-    try {
-      const models = await fetchModelsFunction(...args);
-      memoryCache = models;
+    const models = await fetchModelsFunction(...args);
+    memoryCache = models;
 
-      if (!fs.existsSync(cacheDir)) {
-        fs.mkdirSync(cacheDir, { recursive: true });
-      }
-      fs.writeFileSync(cacheFile, JSON.stringify(models, null, "  "), "utf8");
-      return models;
-    } catch (error) {
-      console.error(`Error fetching models for ${providerName}:`, error);
-      throw error;
+    if (!fs.existsSync(cacheDir)) {
+      fs.mkdirSync(cacheDir, { recursive: true });
     }
+    fs.writeFileSync(cacheFile, JSON.stringify(models, null, "  "), "utf8");
+    return models;
   };
 }
 
@@ -141,65 +131,61 @@ function createProviderContext(providerName, providerOptions) {
         return;
       }
 
-      try {
-        const models = await getModels(resolvedApiKey);
+      const models = await getModels(resolvedApiKey);
 
-        // Filter by allowed models if specified
-        let filteredModels = models;
-        if (allowedModels && allowedModels.length > 0) {
-          filteredModels = models.filter(model => 
-            allowedModels.includes(model.id) || allowedModels.includes(model.name)
-          );
-        }
-
-        // Filter models based on name and args
-        let matchedModels = [];
-        if (modelFilter) {
-          matchedModels = modelFilter(filteredModels, actualName, args);
-        } else {
-          // Default filter by exact match or regex
-          let re;
-          if (args.match === "regex") {
-            re = new RegExp(actualName);
-          }
-
-          matchedModels = filteredModels.filter((item) => {
-            if (args.match === "exact" && item.id === actualName) {
-              return true;
-            }
-            if (re) {
-              return re.test(item.id);
-            }
-            return false;
-          });
-        }
-
-        if (!matchedModels.length) {
-          return;
-        }
-
-        if (args.output === 'all') {
-          return matchedModels.map(model => ({ 
-            type: "llm", 
-            source: providerName,
-            name: mount ? `${mount}/${model.id || model.name}` : (model.id || model.name)
-          }));
-        }
-
-        const model = matchedModels[0];
-        return {
-          type: "llm",
-          source: providerName,
-          exec: async (payload) => {
-            // Get a fresh key in case it's rotated
-            const key = resolvedApiKey || await this.read(apiKeyEnv);
-            return createExecFunction(model, payload, key, this);
-          },
-        };
-      } catch (e ) {
-        console.log(e)
-        return
+      // Filter by allowed models if specified
+      let filteredModels = models;
+      if (allowedModels && allowedModels.length > 0) {
+        filteredModels = models.filter(model => 
+          allowedModels.includes(model.id) || allowedModels.includes(model.name)
+        );
       }
+
+      // Filter models based on name and args
+      let matchedModels = [];
+      if (modelFilter) {
+        matchedModels = modelFilter(filteredModels, actualName, args);
+      } else {
+        // Default filter by exact match or regex
+        let re;
+        if (args.match === "regex") {
+          re = new RegExp(actualName);
+        }
+
+        matchedModels = filteredModels.filter((item) => {
+          if (args.match === "exact" && item.id === actualName) {
+            return true;
+          }
+          if (re) {
+            return re.test(item.id);
+          }
+          return false;
+        });
+      }
+
+      if (!matchedModels.length) {
+        return;
+      }
+
+      if (args.output === 'all') {
+        return matchedModels.map(model => ({ 
+          type: "llm", 
+          source: providerName,
+          name: mount ? `${mount}/${model.id || model.name}` : (model.id || model.name)
+        }));
+      }
+
+      const model = matchedModels[0];
+      return {
+        type: "llm",
+        source: providerName,
+        exec: async (payload) => {
+          // Get a fresh key in case it's rotated
+          const key = resolvedApiKey || await this.read(apiKeyEnv);
+          return createExecFunction(model, payload, key, this);
+        },
+      };
+
     };
   }
 }

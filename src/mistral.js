@@ -7,8 +7,13 @@ async function fetchMistralModels(apiKey) {
     },
   });
 
-  if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
   const content = await res.json();
+  if (!res.ok) { 
+    if (content?.detail) {
+      throw new Error(content.detail)
+    }
+    throw new Error(`${res.status} ${res.statusText}`);
+  }
   return content.data;
 }
 

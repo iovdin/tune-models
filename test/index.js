@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const tune = require('tune-sdk');
 const models = require('../src/index');
-const { openai, anthropic } = require('../src/index');
+const { openai, anthropic, groq, mistral, gemini, openrouter } = require('../src/index');
 
 require('dotenv').config()
 
@@ -13,7 +13,8 @@ const env = {
   ANTHROPIC_KEY: process.env.ANTHROPIC_KEY,
   GROQ_KEY: process.env.GROQ_KEY,
   MISTRAL_KEY: process.env.MISTRAL_KEY,
-  GEMINI_KEY: process.env.GEMINI_KEY
+  GEMINI_KEY: process.env.GEMINI_KEY,
+  OPENROUTER_KEY: process.env.OPENROUTER_KEY
 
 }
 
@@ -25,6 +26,7 @@ tests.api_keys = async function(){
   assert.ok(process.env.GROQ_KEY, "GROQ_KEY has to be set for testing") 
   assert.ok(process.env.MISTRAL_KEY, "MISTRAL_KEY has to be set for testing") 
   assert.ok(process.env.GEMINI_KEY, "GEMINI_KEY has to be set for testing") 
+  assert.ok(process.env.OPENROUTER_KEY, "OPENROUTER_KEY has to be set for testing") 
 }
 
 tests.not_found = async function(){
@@ -246,6 +248,34 @@ tests.usage = async function() {
     await testUsage(item.provider, item.model, false)
     await testUsage(item.provider, item.model, true)
   }
+}
+
+tests.errors = async function() {
+  let ctx = tune.makeContext(openai({apiKey: "hello world"}))
+
+  await assert.rejects(async () => ctx.resolve("model"),
+    { message: /Incorrect API key/ }
+  )
+  ctx = tune.makeContext(anthropic({apiKey: "hello world"}))
+
+  await assert.rejects(async () => ctx.resolve("model"),
+    { message: /invalid x-api-key/ }
+  )
+  ctx = tune.makeContext(groq({apiKey: "hello world"}))
+
+  await assert.rejects(async () => ctx.resolve("model"),
+    { message: /Invalid API Key/ }
+  )
+
+  ctx = tune.makeContext(mistral({apiKey: "hello world"}))
+  await assert.rejects(async () => ctx.resolve("model"),
+    { message: /Unauthorized/ }
+  )
+
+  ctx = tune.makeContext(gemini({apiKey: "hello world"}))
+  await assert.rejects(async () => ctx.resolve("model"),
+    { message: /API key not valid/ }
+  )
 }
 
 
