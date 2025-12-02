@@ -71,6 +71,7 @@ function createProviderContext(providerName, providerOptions) {
     modelMatcher,
     modelFilter,
     createExecFunction,
+    hookMsg,
     apiModelFetcher
   } = providerOptions;
   
@@ -179,6 +180,7 @@ function createProviderContext(providerName, providerOptions) {
       return {
         type: "llm",
         source: providerName,
+        hookMsg,
         exec: async (payload) => {
           // Get a fresh key in case it's rotated
           const key = resolvedApiKey || await this.read(apiKeyEnv);

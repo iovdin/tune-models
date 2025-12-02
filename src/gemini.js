@@ -1,4 +1,5 @@
 const { createProviderContext } = require("./llm-utils");
+const util = require("util")
 
 async function fetchGeminiModels(apiKey) {
   const res = await fetch(
@@ -29,6 +30,27 @@ module.exports = createProviderContext("gemini", {
   //     .map((item) => ({ ...item, shortName: item.name.split("/")[1] }))
   //     .filter((item) => item.shortName === shortName);
   // },
+  
+  hookMsg: (msg) => {
+    if (!Array.isArray(msg.tool_calls)) {
+      return msg
+    }
+    msg.tool_calls.forEach(toolCall => {
+      const signature = toolCall.extra_content?.google?.thought_signature 
+      if (!signature) {
+        return
+      }
+      let args = toolCall.function.arguments
+      if (typeof args === "string") {
+        args = JSON.parse(args)
+      }
+      args.google_thought_signature = signature
+      toolCall.function.arguments = JSON.stringify(args)
+
+    })
+    // console.log(util.inspect(msg, { depth: 10 }))
+    return msg
+  },
   createExecFunction: (model, payload, key) => {
     // google does not like content to be null
     payload.messages.forEach((message) => {
@@ -50,7 +72,25 @@ module.exports = createProviderContext("gemini", {
       body: JSON.stringify({
         model: model.shortName || model.name.split("/")[1],
         ...payload,
-        messages: payload.messages.filter(msg => msg.role !== 'comment'),
+        messages: payload.messages.filter(msg => msg.role !== 'comment').map(msg => {
+          if (! Array.isArray(msg.tool_calls)) {
+            return msg
+          }
+
+          msg.tool_calls.forEach(toolCall => {
+            const args = JSON.parse(toolCall.function.arguments)
+            const thought_signature = args.google_thought_signature
+            if (!thought_signature) {
+              return
+            }
+            delete args.google_thought_signature
+            toolCall.function.arguments = JSON.stringify(args)
+            toolCall.extra_content = {
+              google: { thought_signature }
+            }
+          })
+          return msg
+        }),
       }),
     };
   }
