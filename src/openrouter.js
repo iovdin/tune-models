@@ -1,4 +1,4 @@
-const { createProviderContext } = require("./llm-utils");
+const { createProviderContext, autoFixMessages } = require("./llm-utils");
 
 async function fetchOpenRouterModels() {
   const res = await fetch("https://openrouter.ai/api/v1/models", {
@@ -31,7 +31,7 @@ module.exports = createProviderContext("openrouter", {
       body: JSON.stringify({
         model: model.id,
         ...payload,
-        messages: payload.messages.filter(msg => msg.role !== 'comment'),
+        messages: autoFixMessages(payload.messages).filter(msg => msg.role !== 'comment'),
       }),
     };
   }

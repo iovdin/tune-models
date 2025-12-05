@@ -192,7 +192,47 @@ function createProviderContext(providerName, providerOptions) {
   }
 }
 
+const autoFixMessages = (messages) => 
+  messages.reduce((memo, msg, index, array) => {
+    memo.push(msg)
+    // there must be user after system for anthropic 
+    if (index === 0 && msg.role === "system") {
+      const next = array[1] 
+      if (!next || next.role !== 'user') {
+        memo.push({ role: "user", content: "go on"})
+      }
+    }
+    // for every tool_call there must be tool_result
+    if (Array.isArray(msg.tool_calls) && msg.tool_calls.length) {
+      const id2tc = { }
+      const id2tr = { }
+      msg.tool_calls.forEach(tc => {
+        id2tc[tc.id] = tc 
+      })
+
+      array.slice(index + 1 , index + 1 + msg.tool_calls.length).forEach(msg => {
+        if (msg.role === 'tool') {
+          id2tr[msg.tool_call_id] = msg
+        }
+      })
+      Object.keys(id2tc).forEach(id => {
+        if (!id2tr[id]) {
+          memo.push({
+            role: "tool",
+            tool_call_id: id,
+            content: "tool call cancelled",
+            name: id2tc[id].function.name
+          })
+
+        }
+      })
+    }
+    return memo
+  }, [ ])
+
+
 module.exports = {
   createModelCache,
-  createProviderContext
+  createProviderContext,
+  autoFixMessages 
 };

@@ -1,10 +1,12 @@
 const assert = require('assert');
+const util = require("util");
 
 const fs = require('fs');
 const path = require('path');
 const tune = require('tune-sdk');
 const models = require('../src/index');
 const { openai, anthropic, groq, mistral, gemini, openrouter } = require('../src/index');
+const llmUtils = require('../src/llm-utils.js')
 
 require('dotenv').config()
 
@@ -276,6 +278,41 @@ tests.errors = async function() {
   await assert.rejects(async () => ctx.resolve("model"),
     { message: /API key not valid/ }
   )
+}
+
+tests.autofix = async function() {
+  const ctx = tune.makeContext(
+    env,
+    models()
+  )
+
+
+  async function testModel(model) {
+    let chat = `system: @${model} system 
+tool_call: call1
+user: hi
+`
+      console.log(`autofix ${model}`)
+
+    let { llm, messages } = await ctx.text2payload(chat)
+    // console.log(util.inspect(payload.messages, { depth: 10 }))
+
+    const payload = await llm.exec({ messages })
+    messages = JSON.parse(payload.body).messages
+    // console.log(util.inspect(messages, { depth: 10 }))
+    // insert user after system
+    assert.equal(messages[1].role, "user")
+    const tool = messages[3]
+    assert.equal(tool.role, "tool")
+    assert.equal(tool.tool_call_id, messages[2].tool_calls[0].id)
+    assert.equal(tool.name, "call1")
+    assert.equal(tool.content, "tool call cancelled")
+  }
+
+  // await testModel("mistral-small-latest")
+  for (const model of ["gpt-5-nano", "gemini-2.5-flash", "claude-sonnet-4-20250514", "openai/gpt-5-nano", "mistral-small-latest",  "qwen/qwen3-32b"] ) {
+    await testModel(model)
+  }
 }
 
 

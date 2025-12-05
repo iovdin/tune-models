@@ -1,4 +1,4 @@
-const { createProviderContext } = require("./llm-utils");
+const { createProviderContext, autoFixMessages } = require("./llm-utils");
 
 async function fetchAnthropicModels(apiKey) {
   const res = await fetch("https://api.anthropic.com/v1/models", {
@@ -37,7 +37,7 @@ module.exports = createProviderContext("anthropic", {
       body: JSON.stringify({
         model: model.id,
         ...payload,
-        messages: payload.messages.filter(msg => msg.role !== 'comment'),
+        messages: autoFixMessages(payload.messages).filter(msg => msg.role !== 'comment'),
       }),
     };
   }

@@ -1,4 +1,4 @@
-const { createProviderContext } = require("./llm-utils");
+const { createProviderContext, autoFixMessages } = require("./llm-utils");
 const util = require("util")
 
 async function fetchGeminiModels(apiKey) {
@@ -72,7 +72,7 @@ module.exports = createProviderContext("gemini", {
       body: JSON.stringify({
         model: model.shortName || model.name.split("/")[1],
         ...payload,
-        messages: payload.messages.filter(msg => msg.role !== 'comment').map(msg => {
+        messages: autoFixMessages(payload.messages).filter(msg => msg.role !== 'comment').map(msg => {
           if (! Array.isArray(msg.tool_calls)) {
             return msg
           }

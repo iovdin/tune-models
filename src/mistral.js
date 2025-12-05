@@ -1,4 +1,4 @@
-const { createProviderContext } = require("./llm-utils");
+const { createProviderContext, autoFixMessages } = require("./llm-utils");
 
 async function fetchMistralModels(apiKey) {
   const res = await fetch("https://api.mistral.ai/v1/models", {
@@ -61,7 +61,7 @@ module.exports = createProviderContext("mistral", {
       },
       body: JSON.stringify({
         model: model.id,
-        messages: messages.filter(msg => msg.role !== 'comment'),
+        messages: autoFixMessages(messages).filter(msg => msg.role !== 'comment'),
         ...rest,
       }),
     };
