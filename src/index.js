@@ -8,6 +8,9 @@ const ollama = require("./ollama.js")
 
 const tune = require("tune-sdk")
 
+const man = require("tune-sdk/man");
+man.addPackage(__dirname)
+
 function createModelsMiddleware(options = {}) {
   const { 
     cache = true,           // disk cache by default for text editors
