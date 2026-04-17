@@ -1,6 +1,6 @@
 {
   "name": "tune-models",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "LLM models for tune, from openai, anthropic, openrouter etc",
   "main": "src/index.js",
   "scripts": {

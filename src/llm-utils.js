@@ -179,6 +179,7 @@ function createProviderContext(providerName, providerOptions) {
       const model = matchedModels[0];
       return {
         type: "llm",
+        name: mount ? `${mount}/${model.id || model.name}` : (model.id || model.name),
         source: providerName,
         hookMsg,
         exec: async (payload) => {
