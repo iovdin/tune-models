@@ -29,7 +29,7 @@ module.exports = createProviderContext("openrouter", {
   apiKeyEnv: "OPENROUTER_KEY",
   apiModelFetcher: fetchOpenRouterModels,
   //modelMatcher: (name) => true, // Handle all names
-  modelFilter: (models, name) => {
+  modelFilter: (models, name, { match }) => {
     const [ baseName, postfix ] = name.split(":");
     let result =  models.filter(item => item.id === baseName)
     if (!postfix) {

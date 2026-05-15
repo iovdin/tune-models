@@ -315,6 +315,20 @@ user: hi
   }
 }
 
+tests.openrouter = async function openrouterPostifx() {
+  const ctx = tune.makeContext(
+    env,
+    openrouter()
+  )
+  let model
+  model = await ctx.resolve("deepseek/deepseek-v4-pro:nitro") 
+  assert.ok(model)
+  model = await ctx.resolve("deepseek/deepseek-v4-pro") 
+  assert.ok(model)
+  model = await ctx.resolve("deepseek/.*", { match: "regex", output: "all" })
+  assert.ok(model.length)
+}
+
 
 async function run(testList){
   testList = (testList && testList.length) ? testList : Object.keys(tests)

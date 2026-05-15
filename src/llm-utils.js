@@ -144,7 +144,7 @@ function createProviderContext(providerName, providerOptions) {
 
       // Filter models based on name and args
       let matchedModels = [];
-      if (modelFilter) {
+      if (modelFilter && args.match !== "regex") {
         matchedModels = modelFilter(filteredModels, actualName, args);
       } else {
         // Default filter by exact match or regex
